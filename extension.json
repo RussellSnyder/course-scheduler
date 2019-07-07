@@ -1,0 +1,6 @@
+{
+  "id": "course-scheduler",
+  "name": "course-scheduler",
+  "srcdoc": "./build/index.html",
+  "sidebar": false
+}
