@@ -1,9 +1,7 @@
-import React, {useEffect} from 'react';
-import { differenceWith } from 'lodash';
+import React from 'react';
+import { differenceWith } from 'lodash/differenceWith';
 import {render} from 'react-dom';
 import PropTypes from 'prop-types';
-import {Router, Switch, Route, Link} from 'react-router-dom';
-import {createMemoryHistory} from 'history';
 import {init, locations} from 'contentful-ui-extensions-sdk';
 import {
     Heading,
