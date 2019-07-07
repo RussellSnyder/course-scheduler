@@ -1,5 +1,5 @@
 import React from 'react';
-import { differenceWith } from 'lodash/differenceWith';
+import differenceWith from 'lodash.differencewith';
 import {render} from 'react-dom';
 import PropTypes from 'prop-types';
 import {init, locations} from 'contentful-ui-extensions-sdk';
@@ -66,10 +66,12 @@ export class PageExtension extends React.Component {
         }).then(response => {
             return response.items.map(lesson => parseLesson(lesson))
         }).then(availableLessons => {
+            console.log(availableLessons)
             return differenceWith(availableLessons, this.state.lessons, (a,b) => {
                 return a.id === b.id
             })
         }).then(availableLessons => {
+            console.log(availableLessons)
             this.setState({availableLessons})
         })
     }

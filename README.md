@@ -26,4 +26,4 @@ npm run start
 ## FURTHER DEVELOPMENT / NOTES
 
 - gotcha - setting the value of a JSON object does not need to be parsed, but it must be an object!
-- set content-types to be scheduled at instancing initiation
+- set content-types to be scheduled at instancing initiation and check that content-type has field duration
