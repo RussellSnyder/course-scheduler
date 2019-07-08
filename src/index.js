@@ -45,9 +45,9 @@ export class PageExtension extends React.Component {
             title: title.getValue(),
             short: short.getValue(),
             long: long.getValue(),
-            lessons: lessons.getValue() ? lessons.getValue().lessons : [],
+            lessons: lessons.getValue() ? lessons.getValue().lessons : null,
             duration: null,
-            availableLessons: availableLessons.getValue() || [],
+            availableLessons: availableLessons ? availableLessons.getValue() : []
         };
     }
 
@@ -100,7 +100,9 @@ export class PageExtension extends React.Component {
             let lessonToAdd = prevState.lessons.find(lesson => lesson.id === id)
             let lessons = prevState.lessons.filter(lesson => lesson.id !== id)
 
-            const availableLessons = [lessonToAdd, ...prevState.availableLessons]
+            const availableLessons = prevState.availableLessons
+                    ? [lessonToAdd, ...prevState.availableLessons]
+                    : [lessonToAdd]
 
             this.props.sdk.entry.fields.lessons.setValue(lessons);
 
@@ -239,7 +241,7 @@ export class PageExtension extends React.Component {
                                     <TableCell/>
                                 </TableRow>
                             </TableHead>
-                            <TableBody>
+                            {availableLessons && <TableBody>
                                 {availableLessons.map(lesson => {
                                     return <TableRow
                                             key={lesson.id}
@@ -263,7 +265,7 @@ export class PageExtension extends React.Component {
                                         {/*<TableCell>{lesson.id}</TableCell>*/}
                                     </TableRow>
                                 })}
-                            </TableBody>
+                            </TableBody>}
                         </Table>
                     </Form>
                 </>
