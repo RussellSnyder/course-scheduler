@@ -83,7 +83,7 @@ export class PageExtension extends React.Component {
     addLessonToCourse(id) {
         this.setState(prevState => {
             let lessonToAdd = prevState.availableLessons.find(lesson => lesson.id === id)
-            const lessons = [lessonToAdd, ...prevState.lessons]
+            const lessons = prevState.lessons ? [lessonToAdd, ...prevState.lessons] : [lessonToAdd]
             const availableLessons = prevState.availableLessons.filter(lesson => lesson.id !== id)
 
 
