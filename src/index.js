@@ -4,17 +4,10 @@ import {render} from 'react-dom';
 import PropTypes from 'prop-types';
 import {init, locations} from 'contentful-ui-extensions-sdk';
 import {
-    Heading,
-    DisplayText,
-    Paragraph,
     SectionHeading,
     TextInput,
     Textarea,
     FieldGroup,
-    RadioButtonField,
-    SelectField,
-    Select,
-    Option,
     Form,
     Table,
     TableHead,
@@ -40,17 +33,21 @@ function parseLesson(lesson) {
 }
 
 export class PageExtension extends React.Component {
+    static propTypes = {
+        sdk: PropTypes.object.isRequired
+    };
+
     constructor(props) {
         super(props)
-        const {title, short, long, lessons} = props.sdk.entry.fields;
+        const {title, short, long, lessons, availableLessons} = props.sdk.entry.fields;
 
         this.state = {
             title: title.getValue(),
             short: short.getValue(),
             long: long.getValue(),
-            lessons: lessons.getValue().lessons || [],
+            lessons: lessons.getValue() ? lessons.getValue().lessons : [],
             duration: null,
-            availableLessons: [],
+            availableLessons: availableLessons.getValue() || [],
         };
     }
 
@@ -61,17 +58,17 @@ export class PageExtension extends React.Component {
     }
 
     componentDidMount() {
+        if (!this.props.sdk.space) return; // for testing purposes
+
         this.props.sdk.space.getEntries({
             'content_type': 'courseLesson'
         }).then(response => {
             return response.items.map(lesson => parseLesson(lesson))
         }).then(availableLessons => {
-            console.log(availableLessons)
             return differenceWith(availableLessons, this.state.lessons, (a,b) => {
                 return a.id === b.id
             })
         }).then(availableLessons => {
-            console.log(availableLessons)
             this.setState({availableLessons})
         })
     }
@@ -137,6 +134,7 @@ export class PageExtension extends React.Component {
                         <SectionHeading>Course Title</SectionHeading>
                         <FieldGroup>
                             <TextInput
+                                    testId="field-title"
                                     name="title"
                                     onChange={this.onInputChange}
                                     value={title}
@@ -145,6 +143,7 @@ export class PageExtension extends React.Component {
                         <SectionHeading>Short Course Description</SectionHeading>
                         <FieldGroup>
                             <TextInput
+                                    testId="field-short"
                                     name="short"
                                     onChange={this.onInputChange}
                                     value={short}
@@ -153,6 +152,7 @@ export class PageExtension extends React.Component {
                         <SectionHeading>Long Course Description</SectionHeading>
                         <FieldGroup>
                             <Textarea
+                                    testId="field-long"
                                     rows={5}
                                     name="long"
                                     onChange={this.onInputChange}
@@ -165,21 +165,25 @@ export class PageExtension extends React.Component {
                         </SectionHeading>
                         }
                         {lessons && lessons.length > 0 &&
-                        <Table>
+                        <Table data-test-id="field-lessons">
                             <TableHead>
                                 <TableRow>
-                                    <TableCell></TableCell>
+                                    <TableCell/>
                                     <TableCell>Title</TableCell>
                                     <TableCell>Short</TableCell>
                                     <TableCell>Duration</TableCell>
-                                    <TableCell></TableCell>
+                                    <TableCell/>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
                                 {lessons.map((lesson,i) => {
-                                    return <TableRow key={lesson.id}>
+                                    return <TableRow
+                                            key={lesson.id}
+                                            data-test-id="lesson"
+                                    >
                                         <TableCell>
                                             {i !== 0 && <Icon
+                                                    data-test-id="lesson-move-up"
                                                     size="large"
                                                     onClick={() => this.moveLesson(lesson.id, -1)}
                                                     style={{
@@ -191,6 +195,7 @@ export class PageExtension extends React.Component {
                                                     icon="ArrowUp">
                                             </Icon>}
                                             {i < lessons.length - 1 && <Icon
+                                                    data-test-id="lesson-move-down"
                                                     size="large"
                                                     onClick={() => this.moveLesson(lesson.id, 1)}
                                                     style={{
@@ -207,6 +212,7 @@ export class PageExtension extends React.Component {
                                         <TableCell>{lesson.estimatedDuration['en-US']}</TableCell>
                                         <TableCell>
                                             <Button
+                                                    data-test-id="lesson-remove"
                                                     buttonType="negative"
                                                     onClick={() => this.removeLessonFromCourse(lesson.id)}>
                                                 Remove Lesson
@@ -230,17 +236,22 @@ export class PageExtension extends React.Component {
                                     <TableCell>Title</TableCell>
                                     <TableCell>Short</TableCell>
                                     <TableCell>Duration</TableCell>
-                                    <TableCell></TableCell>
+                                    <TableCell/>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
                                 {availableLessons.map(lesson => {
-                                    return <TableRow key={lesson.id}>
+                                    return <TableRow
+                                            key={lesson.id}
+                                            data-test-id="available-lesson"
+                                    >
                                         <TableCell>{lesson.title['en-US']}</TableCell>
                                         <TableCell>{lesson.short['en-US']}</TableCell>
                                         <TableCell>{lesson.estimatedDuration['en-US']} min</TableCell>
                                         <TableCell>
-                                            <Button onClick={() => this.addLessonToCourse(lesson.id)}>
+                                            <Button
+                                                    data-test-id="available-lesson-add"
+                                                    onClick={() => this.addLessonToCourse(lesson.id)}>
                                                 Add Lesson
                                                 <Icon style={{
                                                     fill: 'white',
@@ -271,10 +282,6 @@ function array_move(arr, old_index, new_index) {
     }
     arr.splice(new_index, 0, arr.splice(old_index, 1)[0]);
     return arr;
-};
-
-PageExtension.propTypes = {
-    sdk: PropTypes.object.isRequired
 };
 
 init(sdk => {
